@@ -1,0 +1,916 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="description" content="Tri Cities ROP Workshop 2: Google AI for Educators with Gemini, NotebookLM, and Google Workspace.">
+  <title>Tri Cities ROP Workshop 2 | Google AI for Educators</title>
+
+  <style>
+    :root{
+      --purple:#A02383;
+      --purple-dark:#7d1f67;
+      --teal:#045577;
+      --teal-dark:#013f58;
+      --ink:#1f2933;
+      --muted:#5a6570;
+      --light:#f8f9fc;
+      --purple-soft:#f5e8f2;
+      --teal-soft:#e8f3f6;
+      --gold-soft:#fff4d8;
+      --white:#ffffff;
+      --border:#d9e0e6;
+      --shadow:0 18px 36px rgba(31,41,51,.10);
+      --radius:24px;
+      --max:1180px;
+    }
+
+    *{box-sizing:border-box}
+    html{scroll-behavior:smooth}
+    body{
+      margin:0;
+      font-family:Verdana, Geneva, Tahoma, sans-serif;
+      color:var(--ink);
+      background:var(--white);
+      line-height:1.65;
+    }
+
+    img{max-width:100%;height:auto}
+    a{color:var(--teal)}
+    a:focus, button:focus, summary:focus{
+      outline:4px solid #f3bfdc;
+      outline-offset:3px;
+    }
+
+    .skip-link{
+      position:absolute;
+      left:-9999px;
+      top:0;
+      background:#000;
+      color:#fff;
+      padding:.8rem 1rem;
+      z-index:999;
+    }
+    .skip-link:focus{left:1rem;top:1rem}
+
+    header{
+      background:
+        radial-gradient(circle at top right, rgba(255,255,255,.17), transparent 28%),
+        radial-gradient(circle at left 12% bottom 12%, rgba(255,255,255,.12), transparent 25%),
+        linear-gradient(135deg,var(--purple),var(--purple-dark) 48%,var(--teal));
+      color:#fff;
+      overflow:hidden;
+    }
+
+    .nav-wrap{
+      max-width:var(--max);
+      margin:auto;
+      display:flex;
+      justify-content:space-between;
+      gap:1rem;
+      align-items:center;
+      padding:1rem 1.25rem;
+    }
+
+    .brand{
+      font-weight:700;
+      letter-spacing:.04em;
+    }
+
+    nav{
+      display:flex;
+      flex-wrap:wrap;
+      gap:.8rem 1rem;
+      justify-content:flex-end;
+    }
+
+    nav a{
+      color:white;
+      text-decoration:none;
+      font-size:.92rem;
+      font-weight:700;
+    }
+    nav a:hover{text-decoration:underline}
+
+    .hero{
+      max-width:var(--max);
+      margin:auto;
+      padding:4.2rem 1.25rem 4.8rem;
+      display:grid;
+      grid-template-columns:1.2fr .95fr;
+      gap:2rem;
+      align-items:center;
+    }
+
+    .eyebrow{
+      text-transform:uppercase;
+      letter-spacing:.12em;
+      font-weight:700;
+      font-size:.84rem;
+      opacity:.95;
+    }
+
+    h1{
+      font-size:clamp(2.4rem,6vw,4.8rem);
+      line-height:1.02;
+      margin:.45rem 0 1rem;
+    }
+
+    .hero p{
+      font-size:1.12rem;
+      max-width:760px;
+      margin:0 0 1.35rem;
+    }
+
+    .buttons{
+      display:flex;
+      flex-wrap:wrap;
+      gap:.85rem;
+      margin-top:1.25rem;
+    }
+
+    .btn{
+      display:inline-block;
+      border-radius:999px;
+      padding:.88rem 1.2rem;
+      text-decoration:none;
+      font-weight:700;
+      border:2px solid transparent;
+    }
+
+    .btn.primary{
+      background:white;
+      color:var(--purple);
+    }
+
+    .btn.secondary{
+      color:white;
+      border-color:white;
+      background:transparent;
+    }
+
+    .hero-visual{
+      position:relative;
+      min-height:430px;
+      display:grid;
+      place-items:center;
+    }
+
+    .hero-glow{
+      position:absolute;
+      inset:auto;
+      width:290px;
+      height:290px;
+      border-radius:50%;
+      background:radial-gradient(circle, rgba(255,255,255,.28), rgba(255,255,255,0));
+      filter:blur(8px);
+    }
+
+    .stack-card{
+      position:absolute;
+      background:rgba(255,255,255,.15);
+      border:1px solid rgba(255,255,255,.25);
+      backdrop-filter:blur(10px);
+      border-radius:24px;
+      box-shadow:var(--shadow);
+      padding:1rem;
+    }
+
+    .stack-card.small{
+      width:180px;
+      top:30px;
+      right:5px;
+      transform:rotate(6deg);
+    }
+
+    .stack-card.mid{
+      width:180px;
+      bottom:28px;
+      left:12px;
+      transform:rotate(-6deg);
+    }
+
+    .stack-card.large{
+      width:min(420px,100%);
+      position:relative;
+      padding:1.2rem;
+      transform:none;
+    }
+
+    .mini-chip{
+      display:inline-block;
+      padding:.32rem .62rem;
+      border-radius:999px;
+      background:rgba(255,255,255,.2);
+      color:#fff;
+      font-size:.8rem;
+      font-weight:700;
+      margin:.15rem;
+    }
+
+    .mini-steps{
+      display:grid;
+      gap:.55rem;
+      margin-top:1rem;
+    }
+
+    .mini-step{
+      display:grid;
+      grid-template-columns:36px 1fr;
+      gap:.65rem;
+      align-items:start;
+      background:rgba(255,255,255,.08);
+      border-radius:14px;
+      padding:.7rem;
+    }
+
+    .mini-icon{
+      width:36px;height:36px;border-radius:12px;
+      display:grid;place-items:center;
+      background:rgba(255,255,255,.18);
+      font-size:1.05rem;font-weight:700;
+    }
+
+    main section{
+      padding:4.4rem 1.25rem;
+    }
+
+    .container{max-width:var(--max);margin:auto}
+
+    .section-label{
+      color:var(--purple);
+      font-weight:700;
+      text-transform:uppercase;
+      font-size:.82rem;
+      letter-spacing:.1em;
+      margin-bottom:.35rem;
+    }
+
+    h2{
+      font-size:clamp(1.8rem,4vw,3rem);
+      line-height:1.12;
+      margin:.2rem 0 .85rem;
+      color:var(--teal);
+    }
+
+    h3{
+      color:var(--purple);
+      margin-top:0;
+      line-height:1.25;
+    }
+
+    .lead{
+      font-size:1.08rem;
+      max-width:860px;
+      color:var(--muted);
+    }
+
+    .grid{
+      display:grid;
+      grid-template-columns:repeat(3,1fr);
+      gap:1rem;
+      margin-top:1.75rem;
+    }
+
+    .grid.two{grid-template-columns:repeat(2,1fr)}
+    .grid.four{grid-template-columns:repeat(4,1fr)}
+
+    .card{
+      background:white;
+      border:1px solid var(--border);
+      border-radius:var(--radius);
+      padding:1.35rem;
+      box-shadow:var(--shadow);
+    }
+    .card p:last-child{margin-bottom:0}
+
+    .alt{background:var(--light)}
+    .purple-bg{background:var(--purple-soft)}
+    .teal-bg{background:var(--teal-soft)}
+
+    .icon-circle{
+      width:56px;height:56px;border-radius:50%;
+      display:grid;place-items:center;
+      font-size:1.4rem;font-weight:700;
+      margin-bottom:.9rem;
+      background:linear-gradient(135deg,var(--purple-soft),var(--teal-soft));
+      color:var(--teal-dark);
+    }
+
+    .workflow{
+      display:grid;
+      grid-template-columns:repeat(4,1fr);
+      gap:1rem;
+      margin-top:1.75rem;
+    }
+
+    .step{
+      position:relative;
+      background:white;
+      border:1px solid var(--border);
+      border-radius:22px;
+      padding:1.15rem;
+      box-shadow:var(--shadow);
+    }
+
+    .step-num{
+      display:inline-flex;
+      align-items:center;
+      justify-content:center;
+      width:34px;
+      height:34px;
+      border-radius:50%;
+      background:var(--purple);
+      color:white;
+      font-size:.9rem;
+      font-weight:700;
+      margin-bottom:.75rem;
+    }
+
+    .tool-badge{
+      display:inline-block;
+      background:var(--teal-soft);
+      color:var(--teal);
+      font-weight:700;
+      border-radius:999px;
+      padding:.35rem .65rem;
+      font-size:.82rem;
+      margin-bottom:.75rem;
+    }
+
+    .visual-band{
+      display:grid;
+      grid-template-columns:1.1fr .9fr;
+      gap:1.2rem;
+      align-items:center;
+      margin-top:1.6rem;
+    }
+
+    .illustration-box{
+      border-radius:26px;
+      background:linear-gradient(135deg, rgba(160,35,131,.09), rgba(4,85,119,.12));
+      border:1px solid var(--border);
+      padding:1.1rem;
+      box-shadow:var(--shadow);
+    }
+
+
+    .flow-diagram{
+      display:grid;
+      grid-template-columns:repeat(4,minmax(0,1fr));
+      gap:2.4rem;
+      align-items:stretch;
+      padding:.75rem .25rem;
+    }
+    .flow-node{
+      position:relative;
+      min-width:0;
+      background:#fff;
+      border:1px solid var(--border);
+      border-radius:22px;
+      padding:2.7rem .8rem 1rem;
+      text-align:center;
+      box-shadow:0 8px 18px rgba(31,41,51,.08);
+    }
+    .flow-node:not(:last-child)::after{
+      content:"";
+      position:absolute;
+      top:50%;
+      left:calc(100% + .45rem);
+      width:1.5rem;
+      height:4px;
+      background:var(--purple);
+      transform:translateY(-50%);
+    }
+    .flow-node:not(:last-child)::before{
+      content:"";
+      position:absolute;
+      top:50%;
+      left:calc(100% + 1.85rem);
+      border-left:10px solid var(--purple);
+      border-top:7px solid transparent;
+      border-bottom:7px solid transparent;
+      transform:translateY(-50%);
+      z-index:2;
+    }
+    .flow-number{
+      position:absolute;
+      top:-18px;
+      left:50%;
+      transform:translateX(-50%);
+      width:52px;
+      height:52px;
+      border-radius:50%;
+      display:grid;
+      place-items:center;
+      color:#fff;
+      font-size:1.25rem;
+      font-weight:700;
+      background:linear-gradient(135deg,var(--purple),var(--teal));
+    }
+    .flow-node h3{
+      margin:0 0 .45rem;
+      color:var(--teal);
+      font-size:1.22rem;
+    }
+    .flow-node p{
+      margin:0;
+      color:var(--ink);
+      font-size:.88rem;
+      line-height:1.45;
+      overflow-wrap:anywhere;
+    }
+
+    .prompt{
+      background:#17232b;
+      color:white;
+      border-radius:18px;
+      padding:1rem 1.1rem;
+      font-family:ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace;
+      font-size:.92rem;
+      overflow:auto;
+    }
+
+    .download-list{
+      display:grid;
+      gap:.8rem;
+      margin-top:1.3rem;
+    }
+
+    .download{
+      display:flex;
+      gap:1rem;
+      align-items:flex-start;
+      background:white;
+      border:1px solid var(--border);
+      border-radius:18px;
+      padding:1rem;
+      box-shadow:var(--shadow);
+    }
+
+    .download strong{display:block}
+
+    .checklist{
+      columns:2;
+      column-gap:2rem;
+      padding-left:1.2rem;
+    }
+
+    .callout{
+      margin-top:1.4rem;
+      border-left:6px solid var(--purple);
+      background:white;
+      border-radius:0 16px 16px 0;
+      padding:1rem 1.15rem;
+      box-shadow:var(--shadow);
+    }
+
+    .action-box{
+      background:linear-gradient(135deg,var(--teal-soft),var(--purple-soft));
+      border:1px solid var(--border);
+      border-radius:var(--radius);
+      padding:1.45rem;
+      margin-top:1.6rem;
+    }
+
+    details{
+      background:white;
+      border:1px solid var(--border);
+      border-radius:14px;
+      padding:.85rem 1rem;
+      margin:.7rem 0;
+      box-shadow:var(--shadow);
+    }
+
+    summary{
+      cursor:pointer;
+      font-weight:700;
+      color:var(--teal);
+    }
+
+    .tiny-note{
+      color:var(--muted);
+      font-size:.95rem;
+    }
+
+    footer{
+      background:#17232b;
+      color:white;
+      padding:2.4rem 1.25rem;
+    }
+    footer .container{
+      display:flex;
+      flex-wrap:wrap;
+      justify-content:space-between;
+      gap:1rem;
+      align-items:center;
+    }
+    footer a{color:white}
+
+    @media (max-width:1000px){
+      .hero,.visual-band{grid-template-columns:1fr}
+
+      .flow-diagram{grid-template-columns:1fr 1fr;gap:2.4rem 1rem}
+      .flow-node::before,.flow-node::after{display:none}
+
+      .workflow,.grid.four{grid-template-columns:repeat(2,1fr)}
+    }
+
+    @media (max-width:800px){
+      .grid,.grid.two,.workflow,.grid.four{grid-template-columns:1fr}
+
+      .flow-diagram{grid-template-columns:1fr;gap:2.2rem}
+
+      .checklist{columns:1}
+      .hero-visual{min-height:360px}
+      .stack-card.small,.stack-card.mid{display:none}
+    }
+
+    @media (prefers-reduced-motion:reduce){
+      html{scroll-behavior:auto}
+      *{animation:none!important;transition:none!important}
+    }
+  </style>
+</head>
+
+<body>
+  <a class="skip-link" href="#main">Skip to main content</a>
+
+  <header>
+    <div class="nav-wrap">
+      <div class="brand">EDUVATORS</div>
+      <nav aria-label="Workshop sections">
+        <a href="#overview">Overview</a>
+        <a href="#workflow">Workflow</a>
+        <a href="#tools">Tools</a>
+        <a href="#practice">Practice</a>
+        <a href="#prompts">Prompts</a>
+        <a href="#downloads">Downloads</a>
+      </nav>
+    </div>
+
+    <div class="hero">
+      <div>
+        <div class="eyebrow">Tri Cities ROP Workshop 2</div>
+        <h1>Google AI for Educators</h1>
+        <p><strong>Gemini, NotebookLM & the Workspace Toolkit</strong></p>
+        <p>A practical workshop website for faculty who want to create with AI, build grounded resources from trusted sources, and improve everyday Google Workspace workflows.</p>
+
+        <div class="buttons">
+          <a class="btn primary" href="#practice">Start here</a>
+          <a class="btn secondary" href="#downloads">Workshop materials</a>
+        </div>
+      </div>
+
+      <div class="hero-visual" aria-hidden="true">
+        <div class="hero-glow"></div>
+
+        <div class="stack-card small">
+          <div class="mini-chip">Gemini</div>
+          <div class="mini-chip">NotebookLM</div>
+          <div class="mini-chip">Workspace</div>
+          <svg viewBox="0 0 180 110" width="100%" role="presentation">
+            <rect x="10" y="18" width="160" height="18" rx="9" fill="rgba(255,255,255,.28)"/>
+            <rect x="10" y="46" width="120" height="12" rx="6" fill="rgba(255,255,255,.18)"/>
+            <rect x="10" y="64" width="145" height="12" rx="6" fill="rgba(255,255,255,.18)"/>
+            <rect x="10" y="82" width="100" height="12" rx="6" fill="rgba(255,255,255,.18)"/>
+          </svg>
+        </div>
+
+        <div class="stack-card mid">
+          <svg viewBox="0 0 180 120" width="100%" role="presentation">
+            <circle cx="38" cy="38" r="18" fill="rgba(255,255,255,.22)"/>
+            <circle cx="88" cy="38" r="18" fill="rgba(255,255,255,.16)"/>
+            <circle cx="138" cy="38" r="18" fill="rgba(255,255,255,.22)"/>
+            <rect x="18" y="74" width="144" height="14" rx="7" fill="rgba(255,255,255,.2)"/>
+            <rect x="38" y="94" width="104" height="10" rx="5" fill="rgba(255,255,255,.14)"/>
+          </svg>
+        </div>
+
+        <div class="stack-card large">
+          <div class="mini-chip">Workshop Finish Line</div>
+          <div class="mini-steps">
+            <div class="mini-step">
+              <div class="mini-icon">1</div>
+              <div><strong>Useful draft</strong><br>One AI assisted resource</div>
+            </div>
+            <div class="mini-step">
+              <div class="mini-icon">2</div>
+              <div><strong>Better workflow</strong><br>Use the right Google tool</div>
+            </div>
+            <div class="mini-step">
+              <div class="mini-icon">3</div>
+              <div><strong>Human oversight</strong><br>Verify, revise, decide</div>
+            </div>
+            <div class="mini-step">
+              <div class="mini-icon">4</div>
+              <div><strong>Next step</strong><br>Apply it to a real task</div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </header>
+
+  <main id="main">
+    <section id="overview">
+      <div class="container">
+        <div class="section-label">Overview</div>
+        <h2>Use AI in ways that are practical, grounded, and useful</h2>
+        <p class="lead">This workshop site is built to be more teachable. Instead of a time based agenda, it is organized around the actual work faculty want to do: create something useful, keep it grounded in trusted materials, and improve work inside Google tools.</p>
+
+        <div class="grid">
+          <article class="card">
+            <div class="icon-circle" aria-hidden="true">✦</div>
+            <h3>Create</h3>
+            <p>Use Gemini to brainstorm, draft, revise, explain, and generate practical teaching or communication materials.</p>
+          </article>
+          <article class="card">
+            <div class="icon-circle" aria-hidden="true">📚</div>
+            <h3>Ground</h3>
+            <p>Use NotebookLM to turn course materials, policies, standards, and program documents into source grounded resources.</p>
+          </article>
+          <article class="card">
+            <div class="icon-circle" aria-hidden="true">⚙</div>
+            <h3>Improve</h3>
+            <p>Use Gemini in Google Workspace to improve writing, presentations, email, organization, and planning where the work already happens.</p>
+          </article>
+        </div>
+
+        <div class="callout">
+          <strong>Best practice:</strong> start with verified information, choose the right AI tool, and keep the final decision in human hands.
+        </div>
+      </div>
+    </section>
+
+    <section id="workflow" class="alt">
+      <div class="container">
+        <div class="section-label">Visual Workflow</div>
+        <h2>A simple 4 step AI teaching workflow</h2>
+        <p class="lead">This is the core visual story of the workshop and replaces the old .</p>
+
+        <div class="workflow">
+          <article class="step">
+            <div class="step-num">1</div>
+            <h3>Choose the task</h3>
+            <p>Pick one real faculty need such as an orientation message, study guide, FAQ, lesson activity, presentation, or workflow improvement.</p>
+          </article>
+          <article class="step">
+            <div class="step-num">2</div>
+            <h3>Choose the best tool</h3>
+            <p>Gemini for creation, NotebookLM for grounded source work, or Google Workspace for improving the task in context.</p>
+          </article>
+          <article class="step">
+            <div class="step-num">3</div>
+            <h3>Prompt with clarity</h3>
+            <p>Name the audience, purpose, source material, output, and constraints. Tell the system what it should not invent.</p>
+          </article>
+          <article class="step">
+            <div class="step-num">4</div>
+            <h3>Review and refine</h3>
+            <p>Check for accuracy, privacy, accessibility, clarity, bias, usefulness, and whether the output actually supports the teaching goal.</p>
+          </article>
+        </div>
+
+        <div class="visual-band">
+          <div class="illustration-box">
+            <div class="flow-diagram" role="img" aria-label="Four step workshop workflow: choose a real task, select the best tool, write a clear prompt, then review with human judgment.">
+              <div class="flow-node">
+                <div class="flow-number" aria-hidden="true">1</div>
+                <h3>Real Task</h3>
+                <p>What do you need to accomplish?</p>
+              </div>
+              <div class="flow-node">
+                <div class="flow-number" aria-hidden="true">2</div>
+                <h3>Best Tool</h3>
+                <p>Gemini, NotebookLM, or Workspace</p>
+              </div>
+              <div class="flow-node">
+                <div class="flow-number" aria-hidden="true">3</div>
+                <h3>Prompt</h3>
+                <p>Audience + task + source + output</p>
+              </div>
+              <div class="flow-node">
+                <div class="flow-number" aria-hidden="true">4</div>
+                <h3>Review</h3>
+                <p>Make the final human decision</p>
+              </div>
+            </div>
+          </div>
+
+          <div class="card">
+            <h3>What makes this useful</h3>
+            <ul>
+              <li>It gives participants a repeatable method.</li>
+              <li>It works across high school pathways, adult learners, and boot camps.</li>
+              <li>It reduces random AI experimentation.</li>
+              <li>It keeps source quality and human review visible.</li>
+            </ul>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <section id="tools">
+      <div class="container">
+        <div class="section-label">Tool Guide</div>
+        <h2>When to use each Google AI tool</h2>
+
+        <div class="grid">
+          <article class="card">
+            <span class="tool-badge">Gemini</span>
+            <h3>Create and refine</h3>
+            <p>Best for brainstorming, drafting, rewriting, activity design, visual concepts, explanations, and repeatable assistants such as Gems.</p>
+            <p><strong>Faculty example:</strong> turn a verified program brief into an orientation message, FAQ, social caption, or lesson activity.</p>
+          </article>
+
+          <article class="card">
+            <span class="tool-badge">NotebookLM</span>
+            <h3>Ground in trusted sources</h3>
+            <p>Best for source based work using syllabi, standards, manuals, handbooks, policies, and approved program documents.</p>
+            <p><strong>Faculty example:</strong> create a study guide, course overview, comparison, or review questions that stay close to the source set.</p>
+          </article>
+
+          <article class="card">
+            <span class="tool-badge">Workspace</span>
+            <h3>Improve work in context</h3>
+            <p>Best for tasks inside Docs, Slides, Sheets, Gmail, Drive, Forms, or Vids when available in the participant account.</p>
+            <p><strong>Faculty example:</strong> revise an existing orientation page, summarize themes in a sheet, or draft a polished email reminder.</p>
+          </article>
+        </div>
+
+        <div class="grid two" style="margin-top:1rem">
+          <article class="card">
+            <h3>Gemini live prompt</h3>
+            <div class="prompt">Create a short orientation message for [AUDIENCE] entering [PROGRAM]. Use only the facts below. Keep it welcoming, practical, and under 180 words. Preserve all dates and requirements exactly. Mark missing information [CONFIRM]. Finish with a short accessibility review. Facts: [PASTE VERIFIED BRIEF].</div>
+          </article>
+
+          <article class="card">
+            <h3>NotebookLM live prompt</h3>
+            <div class="prompt">Using only the selected sources, create a one page study guide for [TOPIC]. Include 8 key ideas, 6 vocabulary terms, 5 practice questions, and a short section called “What learners often confuse.” Cite the supporting source for each major section.</div>
+          </article>
+        </div>
+
+        <div class="callout">
+          <strong>Tip:</strong> if a feature is not available in one participant account, focus on the workflow concept rather than the exact interface.
+        </div>
+      </div>
+    </section>
+
+    <section class="teal-bg">
+      <div class="container">
+        <div class="section-label">Visual Use Cases</div>
+        <h2>Real examples participants can imagine right away</h2>
+
+        <div class="grid four">
+          <article class="card">
+            <div class="icon-circle" aria-hidden="true">✉</div>
+            <h3>Student message</h3>
+            <p>Draft a welcome or reminder for students or families using verified program details.</p>
+          </article>
+          <article class="card">
+            <div class="icon-circle" aria-hidden="true">📝</div>
+            <h3>Study guide</h3>
+            <p>Turn course materials into a clear learner resource with vocabulary and practice questions.</p>
+          </article>
+          <article class="card">
+            <div class="icon-circle" aria-hidden="true">📊</div>
+            <h3>Slides or sheet summary</h3>
+            <p>Organize responses, identify themes, or build concise presentation content.</p>
+          </article>
+          <article class="card">
+            <div class="icon-circle" aria-hidden="true">🧭</div>
+            <h3>Reusable assistant</h3>
+            <p>Create a repeatable set of instructions for a communication or instructional task.</p>
+          </article>
+        </div>
+      </div>
+    </section>
+
+    <section id="practice">
+      <div class="container">
+        <div class="section-label">Hands On Practice</div>
+        <h2>Choose one challenge</h2>
+        <p class="lead">These are simple, visible, and ready to facilitate. Each one includes an expected human decision.</p>
+
+        <div class="grid">
+          <article class="card">
+            <div class="icon-circle" aria-hidden="true">1</div>
+            <h3>Gemini content sprint</h3>
+            <p>Create an orientation message, FAQ, social caption, or classroom activity from a verified program brief.</p>
+            <p><strong>Human decision:</strong> improve accuracy, tone, accessibility, or usefulness.</p>
+          </article>
+
+          <article class="card">
+            <div class="icon-circle" aria-hidden="true">2</div>
+            <h3>NotebookLM grounded resource</h3>
+            <p>Create a study guide, FAQ, comparison, or review quiz from one to three trusted sources.</p>
+            <p><strong>Human decision:</strong> open at least one citation and verify the result.</p>
+          </article>
+
+          <article class="card">
+            <div class="icon-circle" aria-hidden="true">3</div>
+            <h3>Workspace improvement</h3>
+            <p>Use Gemini in Docs, Slides, Sheets, or Gmail to improve something you already do.</p>
+            <p><strong>Human decision:</strong> compare the AI version with the original and keep only what is better.</p>
+          </article>
+        </div>
+      </div>
+    </section>
+
+    <section id="prompts" class="alt">
+      <div class="container">
+        <div class="section-label">Prompt Playbook</div>
+        <h2>Prompts to use right away</h2>
+
+        <details open>
+          <summary>Rewrite for a new audience</summary>
+          <p>Rewrite this text for [AUDIENCE]. Keep every date, requirement, link, and credential statement unchanged. Use shorter sentences and clear headings. Text: [PASTE].</p>
+        </details>
+
+        <details>
+          <summary>Explain a topic simply</summary>
+          <p>Explain [TOPIC] to a beginning learner in plain language. Use one short analogy and three key points. Avoid jargon unless you define it.</p>
+        </details>
+
+        <details>
+          <summary>Design a short learning activity</summary>
+          <p>Design a 20 minute learning activity for [TOPIC]. Audience: [LEARNERS]. Learning outcome: [OUTCOME]. Available materials: [MATERIALS]. Include instructions, check for understanding, accessibility options, and a 3 question reflection.</p>
+        </details>
+
+        <details>
+          <summary>Draft a student communication</summary>
+          <p>Draft a message to [AUDIENCE] about [PURPOSE]. Tone: warm and professional. Use only the verified information below. Put the most important action first. Keep it under 180 words. Verified information: [PASTE].</p>
+        </details>
+
+        <details>
+          <summary>Create a reusable Gem</summary>
+          <p>Create instructions for a reusable faculty assistant that helps with [TASK]. It must use only instructor supplied or attached sources, preserve verified details, avoid invented requirements, use accessible plain language, and flag uncertainty with [CONFIRM]. Add a final human review checklist.</p>
+        </details>
+
+        <details>
+          <summary>Plan a multi tool workflow</summary>
+          <p>Help me plan a workflow using Gemini, NotebookLM, and Google Workspace for [TASK]. For each step, state the purpose, the best tool, the source material needed, the human review decision, and the final deliverable.</p>
+        </details>
+      </div>
+    </section>
+
+    <section id="downloads">
+      <div class="container">
+        <div class="section-label">Workshop Materials</div>
+        <h2>Download the workshop materials</h2>
+        <p class="lead">Use these two resources during the workshop and as references afterward.</p>
+
+        <div class="download-list">
+          <a class="download" href="Tri_Cities_ROP_Google_AI_Participant_Packet.docx" download style="text-decoration:none;color:inherit;">
+            <div class="icon-circle" aria-hidden="true" style="margin:0">📄</div>
+            <div>
+              <strong>Participant Packet</strong>
+              Companion Guide, Faculty Action Plan, Tiered Prompt Playbook, Practice Cards, and Responsible AI review.
+            </div>
+          </a>
+
+          <a class="download" href="Tri_Cities_ROP_Google_AI_Facilitator_Guide.docx" download style="text-decoration:none;color:inherit;">
+            <div class="icon-circle" aria-hidden="true" style="margin:0">🎤</div>
+            <div>
+              <strong>Facilitator Guide</strong>
+              Workshop guidance, demonstration prompts, facilitation notes, practice options, and closing questions.
+            </div>
+          </a>
+        </div>
+      </div>
+    </section>
+
+    <section id="responsible-ai" class="purple-bg">
+      <div class="container">
+        <div class="section-label">Responsible AI</div>
+        <h2>Review before you share</h2>
+        <p class="lead">AI can speed up the work, but faculty expertise remains essential.</p>
+
+        <ul class="checklist">
+          <li><strong>Accuracy:</strong> verify names, dates, requirements, credentials, safety information, and technical claims.</li>
+          <li><strong>Grounding:</strong> trace important claims to an approved source.</li>
+          <li><strong>Privacy:</strong> avoid confidential or personally identifiable student information unless explicitly allowed by policy.</li>
+          <li><strong>Bias:</strong> review for stereotypes, exclusions, and unsupported assumptions.</li>
+          <li><strong>Accessibility:</strong> use headings, readable structure, descriptive links, plain language when appropriate, and meaningful alt text.</li>
+          <li><strong>Human oversight:</strong> keep an appropriate person responsible for the final decision.</li>
+          <li><strong>Transparency:</strong> be able to explain how AI contributed when the context calls for it.</li>
+        </ul>
+
+        <div class="action-box">
+          <h3>Your next step</h3>
+          <p><strong>Within 7 days:</strong> choose one task you already do and improve that workflow.</p>
+          <p><strong>Within 30 days:</strong> try the workflow with real course or program content, review the result, and decide whether it is worth keeping.</p>
+        </div>
+      </div>
+    </section>
+  </main>
+
+  <footer>
+    <div class="container">
+      <div><strong>EDUVATORS</strong><br>Launching new dimensions of learning</div>
+      <div><a href="https://www.eduvators.net/">www.eduvators.net</a></div>
+    </div>
+  </footer>
+</body>
+</html>
